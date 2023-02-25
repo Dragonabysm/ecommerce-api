@@ -22,6 +22,7 @@ CREATE TABLE products (
     user_id INTEGER NOT NULL,
     name VARCHAR(130) NOT NULL,
     description VARCHAR(600) DEFAULT '',
+    price REAL NOT NULL,
     image_url VARCHAR(200) NOT NULL,
     FOREIGN KEY(user_id) REFERENCES users(id)
 )

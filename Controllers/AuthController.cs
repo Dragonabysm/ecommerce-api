@@ -30,7 +30,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost]
-    [Route("/login")]
+    [Route("login")]
     public async Task<IActionResult> Login(RegistrationRequest user)
     {
         string jti = Guid.NewGuid().ToString("N");
@@ -107,7 +107,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost]
-    [Route("/register")]
+    [Route("register")]
     public async Task<IActionResult> Register(RegistrationRequest user)
     {
         string jti = Guid.NewGuid().ToString("N");
