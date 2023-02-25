@@ -29,6 +29,12 @@ public class AuthController : ControllerBase
         );
     }
 
+    /// <summary>
+    /// Login a user and returns he JWT if the login is Ok
+    /// </summary>
+    /// <returns> Returns the user JWT </returns>
+    /// <response code="200">You're authenticated, take the JWT</response>
+    /// <response code="401">Your credentials isn't valid</response>
     [HttpPost]
     [Route("login")]
     public async Task<IActionResult> Login(RegistrationRequest user)
@@ -106,6 +112,12 @@ public class AuthController : ControllerBase
         return Unauthorized();
     }
 
+    /// <summary>
+    /// Register a user and returns he JWT
+    /// </summary>
+    /// <returns> Returns the user JWT </returns>
+    /// <response code="200">You're registered</response>
+    /// <response code="409">Already have this email registered in a user</response>
     [HttpPost]
     [Route("register")]
     public async Task<IActionResult> Register(RegistrationRequest user)

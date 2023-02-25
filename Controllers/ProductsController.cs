@@ -18,6 +18,12 @@ public class ProductsController : ControllerBase
         _connection = new NpgsqlConnection(_config["Database:ConnectionString"]);
     }
 
+    /// <summary>
+    /// Get all products in database
+    /// </summary>
+    /// <returns> Returns all products in database </returns>
+    /// <response code="200">Ok</response>
+    /// <response code="401">You're not authenticated</response>
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> Get()
@@ -59,7 +65,14 @@ public class ProductsController : ControllerBase
         return Ok(products);
     }
 
+    /// <summary>
+    /// Create a product
+    /// </summary>
+    /// <returns> Returns the created product </returns>
+    /// <response code="201"> The product was created </response>
+    /// <response code="401"> You're not authenticated </response>
     [HttpPost("create")]
+    [Authorize]
     public async Task<IActionResult> CreateProduct(ProductRegistration product)
     {
         string? userEmail = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
@@ -112,7 +125,14 @@ public class ProductsController : ControllerBase
         return Created("", productForDb);
     }
 
+    /// <summary>
+    /// Delete a product
+    /// </summary>
+    /// <returns> Without return </returns>
+    /// <response code="200"> The product was deleted </response>
+    /// <response code="401"> You're not authenticated </response>
     [HttpPost("delete")]
+    [Authorize]
     public async Task<IActionResult> DeleteProduct(ProductInfo product)
     {
         string? userEmail = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
@@ -121,7 +141,10 @@ public class ProductsController : ControllerBase
             return Unauthorized();
 
         await _connection.OpenAsync();
-        var queryGetUserId = new NpgsqlCommand("SELECT id FROM users WHERE email = @email", _connection)
+        var queryGetUserId = new NpgsqlCommand(
+            "SELECT id FROM users WHERE email = @email",
+            _connection
+        )
         {
             Parameters = { new("email", userEmail) },
         };
@@ -130,19 +153,23 @@ public class ProductsController : ControllerBase
         if (!(await reader.ReadAsync()))
             return Unauthorized();
 
-        long userId = reader.GetInt64(0);        
-        
+        long userId = reader.GetInt64(0);
+
         await queryGetUserId.DisposeAsync();
         await reader.CloseAsync();
 
-        var queryGetUserIdOfProduct = new NpgsqlCommand("SELECT user_id FROM products WHERE id = @id", _connection)
+        var queryGetUserIdOfProduct = new NpgsqlCommand(
+            "SELECT user_id FROM products WHERE id = @id",
+            _connection
+        )
         {
             Parameters = { new("id", product.id) },
         };
 
         reader = await queryGetUserIdOfProduct.ExecuteReaderAsync();
 
-        if (!(await reader.ReadAsync())) return Unauthorized();
+        if (!(await reader.ReadAsync()))
+            return Unauthorized();
 
         long productUserId = reader.GetInt16(0);
 
@@ -152,7 +179,10 @@ public class ProductsController : ControllerBase
         if (!(userId == productUserId))
             return Unauthorized();
 
-        var queryDeleteProduct = new NpgsqlCommand("DELETE FROM products WHERE id = @id", _connection)
+        var queryDeleteProduct = new NpgsqlCommand(
+            "DELETE FROM products WHERE id = @id",
+            _connection
+        )
         {
             Parameters = { new("id", product.id) }
         };
